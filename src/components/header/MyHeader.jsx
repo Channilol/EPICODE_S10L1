@@ -2,7 +2,7 @@ import './MyHeader.css'
 
 const MyHeader = () => {
     return (
-        <header>
+        <header id="toTop">
             <h2>EpiBooks</h2>
             <ul>
                 <li><a href="#">Shop</a></li>
