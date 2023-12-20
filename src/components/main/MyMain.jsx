@@ -31,13 +31,38 @@ class MyMain extends React.Component {
     handleSearch = (e) => {
         const searchTitle = e.target.value.toLowerCase()
 
-        const booksArray = Object.values(books);
-
-        const filteredBooks = booksArray.flatMap((category) => {
-            return category.filter((book) => {
-                return book.title && book.title.toLowerCase().includes(searchTitle)
-            })
+        const filteredFantasy = fantasy.filter((book) => {
+            return book.title && book.title.toLowerCase().includes(searchTitle)
         })
+        const filteredHistory = history.filter((book) => {
+            return book.title && book.title.toLowerCase().includes(searchTitle)
+        })
+        const filteredHorror = horror.filter((book) => {
+            return book.title && book.title.toLowerCase().includes(searchTitle)
+        })
+        const filteredRomance = romance.filter((book) => {
+            return book.title && book.title.toLowerCase().includes(searchTitle)
+        })
+        const filteredScifi = scifi.filter((book) => {
+            return book.title && book.title.toLowerCase().includes(searchTitle)
+        })
+
+        const removeDuplicates = (books) => {
+            const uniqueBooksMap = {}
+            const uniqueBooks = []
+
+            books.map((book) => {
+                if (!uniqueBooksMap[book.asin]) {
+                    uniqueBooksMap[book.asin] = true
+                    uniqueBooks.push(book)
+                }
+            })
+
+            return uniqueBooks
+        }
+
+        const filteredBooksWithDoubles = [...filteredFantasy, ...filteredHistory, ...filteredHorror, ...filteredRomance, ...filteredScifi];
+        const filteredBooks = removeDuplicates(filteredBooksWithDoubles)
 
         this.setState({ bookTitle: e.target.value, filteredBooks: filteredBooks })
         const cardsButton = document.querySelector('.cardsButton')
