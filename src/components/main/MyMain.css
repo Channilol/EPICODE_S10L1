@@ -40,11 +40,32 @@ main h1, main p {
     transform: scale(1.1)
 }
 
-.cardsContainer {
+form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+form svg {
+    margin: 0 10px 0 0;
+    fill: rgb(73, 17, 17);
+}
+
+form input {
+    width: 30%;
+    height: 40px;
+    padding: 0 10px;
+    min-width: 300px;
+    font-size: 1em;
+}
+
+.cardsContainer > div{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
 }
+
 
 .Card {
     width: 320px;
@@ -53,7 +74,11 @@ main h1, main p {
     margin: 0 5px 50px 5px;
     border-radius: 15px;
     box-shadow: 0px 0px 0px rgba(0,0,0,0);
-    transition: transform 0.2s ease
+    transition: transform 0.2s ease, border 0.1s ease;
+}
+
+.Card.clicked {
+    border: 5px solid brown;
 }
 
 .Card:hover {
