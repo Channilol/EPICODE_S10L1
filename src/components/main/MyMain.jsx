@@ -5,6 +5,7 @@ import history from '../../data/history.json'
 import horror from '../../data/horror.json'
 import romance from '../../data/romance.json'
 import scifi from '../../data/scifi.json'
+import Book from '../Book/Book'
 import books from '../../data/books.json'
 
 class MyMain extends React.Component {
@@ -14,7 +15,6 @@ class MyMain extends React.Component {
             selectedCategory: null,
             bookTitle: '',
             filteredBooks: [],
-            clickedCards: [],
         };
         this.handleCategoryClick = this.handleCategoryClick.bind(this)
     }
@@ -30,39 +30,27 @@ class MyMain extends React.Component {
 
     handleSearch = (e) => {
         const searchTitle = e.target.value.toLowerCase()
-
-        const filteredFantasy = fantasy.filter((book) => {
-            return book.title && book.title.toLowerCase().includes(searchTitle)
-        })
-        const filteredHistory = history.filter((book) => {
-            return book.title && book.title.toLowerCase().includes(searchTitle)
-        })
-        const filteredHorror = horror.filter((book) => {
-            return book.title && book.title.toLowerCase().includes(searchTitle)
-        })
-        const filteredRomance = romance.filter((book) => {
-            return book.title && book.title.toLowerCase().includes(searchTitle)
-        })
-        const filteredScifi = scifi.filter((book) => {
-            return book.title && book.title.toLowerCase().includes(searchTitle)
-        })
+        const booksArray = Object.values(books)
 
         const removeDuplicates = (books) => {
-            const uniqueBooksMap = {}
-            const uniqueBooks = []
+            const uniqueBooks = [];
 
             books.map((book) => {
-                if (!uniqueBooksMap[book.asin]) {
-                    uniqueBooksMap[book.asin] = true
-                    uniqueBooks.push(book)
+                if (!uniqueBooks.some((uniqueBook) => uniqueBook.asin === book.asin)) {
+                  uniqueBooks.push(book);
                 }
-            })
+              });
 
             return uniqueBooks
         }
 
-        const filteredBooksWithDoubles = [...filteredFantasy, ...filteredHistory, ...filteredHorror, ...filteredRomance, ...filteredScifi];
-        const filteredBooks = removeDuplicates(filteredBooksWithDoubles)
+        const filteredBooksWithDouble = booksArray.flatMap((category) => {
+            return category.filter((book) => {
+                return book.title && book.title.toLowerCase().includes(searchTitle)
+            })
+        })
+
+        const filteredBooks = removeDuplicates(filteredBooksWithDouble)
 
         this.setState({ bookTitle: e.target.value, filteredBooks: filteredBooks })
         const cardsButton = document.querySelector('.cardsButton')
@@ -71,36 +59,25 @@ class MyMain extends React.Component {
         cardsSearch.style.display = 'flex'
     }
 
-    handleCardClick = (bookId) => {
-        const clickedCards = [...this.state.clickedCards]
-        if (!clickedCards.includes(bookId)) {
-            clickedCards.push(bookId)
-        } else {
-            const index = clickedCards.indexOf(bookId)
-            clickedCards.splice(index, 1)
-        }
-        this.setState({ clickedCards: clickedCards })
-    }  
-
     render() {
         const { selectedCategory, filteredBooks, clickedCards } = this.state
         
         let selectedData = [];
         switch (selectedCategory) {
           case 'Fantasy':
-            selectedData = fantasy;
+            selectedData = books.fantasy;
             break;
           case 'History':
-            selectedData = history;
+            selectedData = books.history;
             break;
           case 'Horror':
-            selectedData = horror;
+            selectedData = books.horror;
             break;
           case 'Romance':
-            selectedData = romance;
+            selectedData = books.romance;
             break;
           case 'Scifi':
-            selectedData = scifi;
+            selectedData = books.scifi;
             break;
           default:
             break;
@@ -134,24 +111,14 @@ class MyMain extends React.Component {
                     <div className='cardsSearch'>
                         {filteredBooks.map((book) => {
                             return (
-                                <div className={`Card ${this.state.clickedCards.includes(book.asin) ? 'clicked' : ''}`} key={book.asin} onClick={() => this.handleCardClick(book.asin)}>
-                                    <div className='cardImg'>
-                                        <img src={book.img} />
-                                    </div>
-                                    <h3>{book.title}</h3>
-                                </div>
+                                <Book key={book.asin} img={book.img} title={book.title} />
                             )
                         })}
                     </div>
                     <div className='cardsButton'>
                         {selectedData.map((book) => {
                             return (
-                                <div className={`Card ${this.state.clickedCards.includes(book.asin) ? 'clicked' : ''}`} key={book.asin} onClick={() => this.handleCardClick(book.asin)}>
-                                    <div className='cardImg'>
-                                        <img src={book.img} />
-                                    </div>
-                                    <h3>{book.title}</h3>
-                                </div>
+                                <Book key={book.asin} img={book.img} title={book.title} />
                             )
                         })}
                     </div>
