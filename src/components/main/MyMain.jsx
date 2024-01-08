@@ -1,10 +1,5 @@
 import React from 'react'
 import './MyMain.css'
-import fantasy from '../../data/fantasy.json'
-import history from '../../data/history.json'
-import horror from '../../data/horror.json'
-import romance from '../../data/romance.json'
-import scifi from '../../data/scifi.json'
 import Book from '../Book/Book'
 import books from '../../data/books.json'
 
@@ -15,8 +10,43 @@ class MyMain extends React.Component {
             selectedCategory: null,
             bookTitle: '',
             filteredBooks: [],
+            comments: [],
+            filteredComments: [],
         };
         this.handleCategoryClick = this.handleCategoryClick.bind(this)
+    }
+
+    async componentDidMount() {
+        try {
+            const res = await fetch("https://striveschool-api.herokuapp.com/api/comments/", {
+                headers: {
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTliZjZhZGUwZGQxZDAwMTgyZDE3MWMiLCJpYXQiOjE3MDQ3MjAwNDUsImV4cCI6MTcwNTkyOTY0NX0.DniBO2PlsIOn1pa4wAkZ_7XYJiCFgkID4BD2VGlZNgY"
+                }
+            })
+            if (res.ok) {
+                const data = await res.json()
+                this.setState({
+                    comments: data
+                })
+                console.log(data)
+            } else {
+                alert('Errore nel caricamento dei dati')
+            }
+        }
+        catch (err) {
+            console.log('ERRORE:', err)
+        }
+    }
+
+    bookClick = (book) => {
+        const newComments = this.state.comments
+            .filter((comment) => comment.elementId === book.asin)
+            .map((comment) => {
+                return comment; // Assicurati di restituire il commento
+            });
+    
+        this.setState({ filteredComments: newComments });
+        console.log(newComments);
     }
 
     handleCategoryClick = (category) => {
@@ -60,7 +90,7 @@ class MyMain extends React.Component {
     }
 
     render() {
-        const { selectedCategory, filteredBooks, clickedCards } = this.state
+        const { selectedCategory, filteredBooks, comments } = this.state
         
         let selectedData = [];
         switch (selectedCategory) {
@@ -107,20 +137,46 @@ class MyMain extends React.Component {
                         <input type='text' name='searchBook' id='searchBook' placeholder='Cerca il tuo libro' value={this.state.bookTitle} onChange={this.handleSearch}/>
                     </form>
                 </div>
-                <div className='cardsContainer'>
-                    <div className='cardsSearch'>
-                        {filteredBooks.map((book) => {
-                            return (
-                                <Book key={book.asin} img={book.img} title={book.title} />
-                            )
-                        })}
+                <div className='mainBot'>
+                    <div className='cardsContainer'>
+                        <div className='cardsSearch'>
+                            {filteredBooks.map((book) => {
+                                return (
+                                    <Book key={book.asin} img={book.img} title={book.title} onClick={() => {this.bookClick(book)}}/>
+                                )
+                            })}
+                        </div>
+                        <div className='cardsButton'>
+                            {selectedData.map((book) => {
+                                return (
+                                    <Book key={book.asin} img={book.img} title={book.title} onClick={() => {this.bookClick(book)}}/>
+                                )
+                            })}
+                        </div>
                     </div>
-                    <div className='cardsButton'>
-                        {selectedData.map((book) => {
-                            return (
-                                <Book key={book.asin} img={book.img} title={book.title} />
-                            )
-                        })}
+                    <div className='cardComments'>
+                        <ul>
+                            <li>Prova</li>
+                            {this.state.filteredComments.map((comment) => {
+                                return (
+                                <li>{comment.comment} | {comment.rate}</li>
+                                )
+                            })}
+                        </ul>
+                        <form onSubmit={(e) => {
+                            e.preventDefault()
+                        }}>
+                            <input type='text' placeholder='Scrivi un commento'></input>
+                            <label htmlFor='rate'>Rate:</label>
+                            <select name='rate'>
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </form>
+
                     </div>
                 </div>
             </main>
